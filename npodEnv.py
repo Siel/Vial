@@ -1,3 +1,4 @@
+from typing import Match
 from rpy2.robjects.packages import importr
 from rpy2.robjects.packages import STAP
 from rpy2.robjects import r
@@ -44,9 +45,50 @@ class NpodEnv:
         self.individuals = r['seq'](1,51)
         self.c0 = 0
         self.c1 = 0.1
-        self.cache_folder_name = "1comp_neely"
+        self.cache_folder_name = "1comp_neely",
+        #Meta parameters
+        self.inc_rate = 0.1
+        self.dec_rate = 0.1
+        # result_dic = r_list_to_py_dict(r['NPOD'](
+        #     self.sim_file,
+        #     self.pkdata_file,
+        #     list(map(FloatVector, [self.a,self.b])),
+        #     self.individuals,
+        #     model = self.model,
+        #     c0 = self.c0,
+        #     c1 = self.c1,
+        #     ncycles = 2,
+        #     MaxIter = 5,
+        #     size_theta0 = 10000,
+        #     cache_folder_name = self.cache_folder_name))
+        #result_dic["LogLikelihood"]
+        self.inner_reward = 129.58672537597195 # reward obtained with the default configuration
     
-    def run(self):
+    def run(self, action):
+        if action == "inc_a1":
+            self.a[0] = self.a[0] + self.inc_rate * self.a[0]
+        elif action == "inc_b1":
+            self.b[0] = self.b[0] + self.inc_rate * self.b[0]
+        elif action == "inc_a2":
+            self.a[1] = self.a[1] + self.inc_rate * self.a[1]
+        elif action == "inc_b2":
+            self.b[1] = self.b[1] + self.inc_rate * self.b[1]
+        elif action == "inc_c0":
+            self.c0 = self.c0 + self.inc_rate * self.c0
+        elif action == "inc_c1":
+            self.c1 = self.c1 + self.inc_rate * self.c1
+        elif action == "dec_a1":
+            self.a[0] = self.a[0] - self.dec_rate * self.a[0]
+        elif action == "dec_b1":
+            self.b[0] = self.b[0] - self.dec_rate * self.b[0]
+        elif action == "dec_a2":
+            self.a[1] = self.a[1] - self.dec_rate * self.a[1]
+        elif action == "dec_b2":
+            self.b[1] = self.b[1] - self.dec_rate * self.b[1]
+        elif action == "dec_c0":
+            self.c0 = self.c0 - self.dec_rate * self.c0
+        elif action == "dec_c1":
+            self.c1 = self.c1 - self.dec_rate * self.c1
         result_dic = r_list_to_py_dict(r['NPOD'](
             self.sim_file,
             self.pkdata_file,
@@ -55,9 +97,29 @@ class NpodEnv:
             model = self.model,
             c0 = self.c0,
             c1 = self.c1,
+            ncycles = 2,
+            MaxIter = 5,
             size_theta0 = 10000,
             cache_folder_name = self.cache_folder_name))
         del result_dic['PSI']
-        return({**result_dic, 'a': self.a, 'b': self.b, 'c0': self.c0, 'c1': self.c1})
+        return_dic = {**result_dic, 'a': self.a, 'b': self.b, 'c0': self.c0, 'c1': self.c1, 'reward': result_dic["LogLikelihood"]-self.reward}
+        if self.reward < result_dic["LogLikelihood"]:
+            self.reward = result_dic["LogLikelihood"]
+        return(return_dic)
     def ver(self):
-        return(0.2)
+        return(0.5)
+    def actions(self):
+        return([
+            "inc_a1",
+            "inc_b1",
+            "inc_a2",
+            "inc_b2",
+            "inc_c0",
+            "inc_c1",
+            "dec_a1",
+            "dec_b1",
+            "dec_a2",
+            "dec_b2",
+            "dec_c0",
+            "dec_c1"
+        ])
