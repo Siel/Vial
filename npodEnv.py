@@ -45,7 +45,7 @@ class NpodEnv:
         self.individuals = r['seq'](1,51)
         self.c0 = 0
         self.c1 = 0.1
-        self.cache_folder_name = "1comp_neely",
+        self.cache_folder_name = "1comp_neely"
         #Meta parameters
         self.inc_rate = 0.1
         self.dec_rate = 0.1
@@ -62,9 +62,19 @@ class NpodEnv:
         #     size_theta0 = 10000,
         #     cache_folder_name = self.cache_folder_name))
         #result_dic["LogLikelihood"]
-        self.inner_reward = 129.58672537597195 # reward obtained with the default configuration
+        self.reward = 129.58672537597195 # reward obtained with the default configuration
+
+    def encoded_state(self):
+        return("%f-%f-%f-%f-%f-%f" % (self.a[0], self.a[1], self.b[0], self.b[1], self.c0, self.c1))
     
-    def run(self, action):
+    def reset(self):
+        self.a=[0.001, 50]
+        self.b=[2, 250]
+        self.c0 = 0
+        self.c1 = 0.1
+    
+    def run(self, action_i):
+        action = self.actions()[action_i]
         if action == "inc_a1":
             self.a[0] = self.a[0] + self.inc_rate * self.a[0]
         elif action == "inc_b1":
@@ -107,7 +117,7 @@ class NpodEnv:
             self.reward = result_dic["LogLikelihood"]
         return(return_dic)
     def ver(self):
-        return(0.5)
+        return(0.11)
     def actions(self):
         return([
             "inc_a1",
