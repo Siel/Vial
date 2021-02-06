@@ -47,8 +47,8 @@ class NpodEnv:
         self.c1 = 0.1
         self.cache_folder_name = "1comp_neely"
         #Meta parameters
-        self.inc_rate = 0.1
-        self.dec_rate = 0.1
+        self.inc_rate = 1/9
+        self.dec_rate = 1/10
         # result_dic = r_list_to_py_dict(r['NPOD'](
         #     self.sim_file,
         #     self.pkdata_file,
@@ -72,6 +72,7 @@ class NpodEnv:
         self.b=[2, 250]
         self.c0 = 0
         self.c1 = 0.1
+        self.reward = 129.58672537597195
     
     def run(self, action_i):
         action = self.actions()[action_i]
@@ -113,11 +114,11 @@ class NpodEnv:
             cache_folder_name = self.cache_folder_name))
         del result_dic['PSI']
         return_dic = {**result_dic, 'a': self.a, 'b': self.b, 'c0': self.c0, 'c1': self.c1, 'reward': result_dic["LogLikelihood"]-self.reward}
-        if self.reward < result_dic["LogLikelihood"]:
-            self.reward = result_dic["LogLikelihood"]
+        # if self.reward < result_dic["LogLikelihood"]:
+        self.reward = result_dic["LogLikelihood"]
         return(return_dic)
     def ver(self):
-        return(0.11)
+        return(0.12)
     def actions(self):
         return([
             "inc_a1",
