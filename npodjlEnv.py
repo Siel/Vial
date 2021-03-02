@@ -1,4 +1,5 @@
 from julia import npod
+from julia import Main
 
 
 class NpodJLEnv:
@@ -9,6 +10,7 @@ class NpodJLEnv:
         self.b = [2, 250]
         self.c0 = 0
         self.c1 = 0.1
+        self.reward = 0
         # Meta parameters
         self.inc_rate = 1.0/10.0
         self.dec_rate = 1.0/11.0
@@ -51,8 +53,8 @@ class NpodJLEnv:
 
         (cycles, theta, w, fobj, _) = npod.run(self.pkdata_file,
                                                self.a, self.b, self.c0, self.c1, 0, 51)
-
-        return_dic = {'cycles': cycles, 'theta': theta, 'w': w, 'fobj': fobj, 'a': self.a, 'b': self.b, 'c0': self.c0,
+        Main.fobj = fobj
+        return_dic = {'cycles': cycles, 'theta': theta, 'w': w, 'fobj': Main.eval("fobj[]"), 'a': self.a, 'b': self.b, 'c0': self.c0,
                       'c1': self.c1}
         # if self.reward < result_dic["LogLikelihood"]:
         # self.reward = result_dic["LogLikelihood"]
