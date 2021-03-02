@@ -23,6 +23,7 @@ class NpodJLEnv:
         self.b = [2, 250]
         self.c0 = 0
         self.c1 = 0.1
+        self.reward = 0
 
     def run(self, action_i):
         action = self.actions()[action_i]
@@ -62,7 +63,7 @@ class NpodJLEnv:
         return(return_dic)
 
     def ver(self):
-        return(0.3)
+        return(0.4)
 
     def actions(self):
         return([
