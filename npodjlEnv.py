@@ -16,7 +16,7 @@ class NpodJLEnv:
         self.dec_rate = 1.0/11.0
 
     def encoded_state(self):
-        return("%f-%f-%f-%f-%f-%f" % (self.a[0], self.a[1], self.b[0], self.b[1], self.c0, self.c1))
+        return("%f_%f_%f_%f_%f_%f" % (self.a[0], self.a[1], self.b[0], self.b[1], self.c0, self.c1))
 
     def reset(self):
         self.a = [0.001, 50]
@@ -54,14 +54,15 @@ class NpodJLEnv:
         (cycles, theta, w, fobj, _) = npod.run(self.pkdata_file,
                                                self.a, self.b, self.c0, self.c1, 0, 51)
         Main.fobj = fobj
-        return_dic = {'cycles': cycles, 'theta': theta, 'w': w, 'fobj': Main.eval("fobj[]"), 'a': self.a, 'b': self.b, 'c0': self.c0,
-                      'c1': self.c1}
+        fobj_val = Main.eval("fobj[]")
+        return_dic = {'cycles': cycles, 'theta': theta, 'w': w, 'fobj': fobj_val, 'a': self.a, 'b': self.b, 'c0': self.c0,
+                      'c1': self.c1, 'reward': fobj_val - self.reward}
         # if self.reward < result_dic["LogLikelihood"]:
-        # self.reward = result_dic["LogLikelihood"]
+        self.reward = fobj_val
         return(return_dic)
 
     def ver(self):
-        return(0.1)
+        return(0.3)
 
     def actions(self):
         return([
