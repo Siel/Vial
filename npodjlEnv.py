@@ -1,9 +1,10 @@
 from julia import npod
+from julia import npag
 from julia import Main
 
 
 class NpodJLEnv:
-    def __init__(self):
+    def __init__(self, engine="npod"):
         self.pkdata_file = "data/data_1comp_neely.csv"
         self.sim_file = ""
         self.a = [0.001, 125, 0.001, 0.001]
@@ -13,6 +14,7 @@ class NpodJLEnv:
         self.c1 = 0.1
         self.reward = 0
         # Meta parameters
+        self.engine = engine
         self.inc_rate = 1.0/10.0
         self.dec_rate = 1.0/11.0
 
@@ -32,6 +34,7 @@ class NpodJLEnv:
 
     def run(self, action_i):
         action = self.actions()[action_i]
+        # TODO: generalize the actions
         if action == "inc_a1":
             self.a[0] = self.a[0] + self.inc_rate * self.a[0]
         elif action == "inc_b1":
@@ -71,8 +74,14 @@ class NpodJLEnv:
         elif action == "dec_b4":
             self.b[3] = self.b[3] - self.dec_rate * self.b[3]
 
-        (cycles, theta, w, fobj, _) = npod.run(self.pkdata_file,
-                                               self.a, self.b, self.c0, self.c1, 0, 51)
+        a = self.a if self.model == 2 else self.a[:2]
+        b = self.b if self.model == 2 else self.b[:2]
+        if self.engine == "npod":
+            (cycles, theta, w, fobj, _) = npod.run(self.model,
+                                                   self.pkdata_file, a, b, self.c0, self.c1, 0, 200)
+        elif self.engine == "npag":
+            (cycles, theta, w, fobj, _) = npag.run(self.model,
+                                                   self.pkdata_file, a, b, self.c0, self.c1, 0, 200)
         Main.fobj = fobj
         fobj_val = Main.eval("fobj[]")
         return_dic = {'cycles': cycles, 'theta': theta, 'w': w, 'fobj': fobj_val, 'a': self.a, 'b': self.b, 'c0': self.c0,
@@ -82,7 +91,7 @@ class NpodJLEnv:
         return(return_dic)
 
     def ver(self):
-        return(0.9)
+        return(0.18)
 
     def actions(self):
         if self.model == 1:
